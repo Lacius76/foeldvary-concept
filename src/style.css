@@ -1,0 +1,605 @@
+/* =====================================================
+   DESIGN TOKENS — single source of truth
+   ===================================================== */
+:root {
+  --color-bg: #050c1a;
+  --color-bg-panel: rgba(5, 18, 45, 0.85);
+  --color-cyan: #00d4ff;
+  --color-magenta: #ff00aa;
+  --color-gold: #f0a030;
+  --color-text: #e8f4ff;
+  --color-text-muted: rgba(180, 210, 240, 0.65);
+  --color-border: rgba(0, 212, 255, 0.35);
+
+  --font-display: 'Faculty Glyphic', serif;
+  --font-ui: 'Exo 2', sans-serif;
+  --font-size-title: clamp(1.8rem, 3.5vw, 2.8rem);
+  --font-size-body: clamp(1rem, 1.5vw, 1.2rem);
+  --font-size-label: 0.68rem;
+
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 40px;
+
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-fast: 200ms;
+  --duration-med: 400ms;
+  --duration-slow: 800ms;
+
+  --panel-bg: rgba(5, 18, 45, 0.85);
+  --panel-border: rgba(0, 212, 255, 0.35);
+  --panel-radius: 2px;
+  --panel-corner: 20px;
+}
+
+/* =====================================================
+   RESET & BASE
+   ===================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  width: 100%;
+}
+
+/* =====================================================
+   SCROLL WRAPPER — 550vh total
+   Sticky canvas is 100vh, so max scrollY = 450vh.
+   Each phase takes 150vh of scroll (1.5× slower feel).
+   JS divisor: vh * 1.5 → t still goes 0 to 3.
+   ===================================================== */
+#scroll-wrapper {
+  height: 550vh;
+}
+
+/* =====================================================
+   SCROLL CANVAS — sticky, stays at top, 100vh
+   This is the visible stage for all animations
+   ===================================================== */
+#scroll-canvas {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* =====================================================
+   BACKGROUND — back-first.jpg fills the canvas
+   ===================================================== */
+/* Day sky background */
+#scene-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: url('/back-first.jpg');
+  background-size: cover;
+  background-position: center center;
+}
+
+/* Night sky background — sits on top, opacity: 0 by default.
+   Toggle fades it in to reveal night. */
+#scene-bg-night {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: url('/back-first-dark.jpg');
+  background-size: cover;
+  background-position: center center;
+  opacity: 0;
+  transition: opacity 0.8s var(--ease-smooth);
+}
+
+/* =====================================================
+   CITY GROUP — city_day_top.png + city_day.jpg
+   Stacked vertically inside one container; JS drives
+   the parent's translateY so both move together.
+   Anchored to bottom: 0 of the canvas.
+   ===================================================== */
+#city-bg {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  will-change: transform;
+}
+
+/* Sky gradient strip — directly above city_day.jpg */
+.city-top-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+/* Main city photo (day) */
+.city-main-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+/* Wrapper so day and night city images overlap exactly */
+.city-photo-wrap {
+  position: relative;
+  flex-shrink: 0;
+  line-height: 0;
+  /* remove inline-block gap */
+}
+
+/* Night city image — absolutely overlaid, opacity: 0 by default */
+.city-night-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0;
+  transition: opacity 0.8s var(--ease-smooth);
+  pointer-events: none;
+}
+
+/* Sky gradient strip transition */
+.city-top-img {
+  transition: opacity 0.8s var(--ease-smooth);
+}
+
+/* =====================================================
+   BOT NARRATOR — floats on the left side after portal entry
+   .bot-wrap: JS drives translateX (entry slide from left)
+   #bot-img:  CSS float-bob animation (independent vertical float)
+   ===================================================== */
+.bot-wrap {
+  position: absolute;
+  left: 48px;
+  /* Vertical center, slightly below middle for grounded feel */
+  top: calc(50% - 300px);
+  transform: translateY(-50%);
+  z-index: 4;
+  /* Initial state — off screen left (overridden by JS immediately) */
+  will-change: transform, opacity;
+}
+
+#bot-img {
+  width: 242px;
+  height: auto;
+  display: block;
+  /* Gentle float animation — separate from JS translateX on wrapper */
+  animation: float-bob 3.2s var(--ease-smooth) infinite;
+  /* Enhance the bot's built-in cyan glow */
+  filter: drop-shadow(0 0 24px rgba(0, 212, 255, 0.45));
+}
+
+@keyframes float-bob {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-14px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+/* =====================================================
+   PORTAL IMAGE
+   Rises and then zooms via JS transform.
+   transform-origin tuned to the arch opening center.
+   ===================================================== */
+.portal-img {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 100%;
+  height: auto;
+  z-index: 2;
+  /* Zoom toward the arch opening (slightly above center) */
+  transform-origin: 50% 42%;
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+
+/* =====================================================
+   INTRO OVERLAY — phase 1 only
+   Fades out at the start of phase 2
+   ===================================================== */
+#intro-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  will-change: opacity;
+  /* Allow pointer events only when visible */
+  pointer-events: none;
+}
+
+/* Text content */
+.intro-content {
+  text-align: center;
+  padding: 0 var(--space-xl);
+  max-width: 800px;
+}
+
+.intro-greeting {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: 0.08em;
+  margin-bottom: var(--space-lg);
+  text-shadow: 0 0 40px rgba(0, 212, 255, 0.25), 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+.intro-body {
+  font-family: var(--font-ui);
+  font-size: clamp(1rem, 1.8vw, 1.25rem);
+  color: var(--color-text);
+  line-height: 1.75;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.7);
+}
+
+/* Scroll hint at bottom of canvas */
+.intro-scroll-hint {
+  position: absolute;
+  bottom: var(--space-xl);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.intro-scroll-hint span {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-label);
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* Bouncing arrow animation */
+.bounce-arrow {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-cyan);
+  animation: bounce-down 1.4s var(--ease-smooth) infinite;
+}
+
+.bounce-arrow svg {
+  width: 24px;
+  height: 24px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@keyframes bounce-down {
+
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  50% {
+    transform: translateY(10px);
+    opacity: 0.6;
+  }
+}
+
+/* =====================================================
+   THEME TOGGLE — wrapper positioning
+   Fixed top-right, always above all scene layers
+   ===================================================== */
+#theme-toggle-wrap {
+  position: absolute;
+  top: var(--space-lg);
+  right: var(--space-lg);
+  z-index: 10;
+}
+
+/* =====================================================
+   SUN / MOON TOGGLE SWITCH
+   Original design by user, integrated with project tokens
+   ===================================================== */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch #theme-input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #2196f3;
+  transition: 0.4s;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.sun-moon {
+  position: absolute;
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: yellow;
+  transition: 0.4s;
+}
+
+#theme-input:checked+.slider {
+  background-color: black;
+}
+
+#theme-input:focus+.slider {
+  box-shadow: 0 0 1px #2196f3;
+}
+
+#theme-input:checked+.slider .sun-moon {
+  transform: translateX(26px);
+  background-color: white;
+}
+
+.moon-dot {
+  opacity: 0;
+  transition: 0.4s;
+  fill: gray;
+}
+
+#theme-input:checked+.slider .sun-moon .moon-dot {
+  opacity: 1;
+}
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round .sun-moon {
+  border-radius: 50%;
+}
+
+#moon-dot-1 {
+  left: 10px;
+  top: 3px;
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  z-index: 4;
+}
+
+#moon-dot-2 {
+  left: 2px;
+  top: 10px;
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  z-index: 4;
+}
+
+#moon-dot-3 {
+  left: 16px;
+  top: 18px;
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  z-index: 4;
+}
+
+.light-ray {
+  position: absolute;
+  fill: white;
+  opacity: 10%;
+  z-index: -1;
+}
+
+#light-ray-1 {
+  left: -8px;
+  top: -8px;
+  width: 43px;
+  height: 43px;
+}
+
+#light-ray-2 {
+  left: -50%;
+  top: -50%;
+  width: 55px;
+  height: 55px;
+}
+
+#light-ray-3 {
+  left: -18px;
+  top: -18px;
+  width: 60px;
+  height: 60px;
+}
+
+.cloud-light {
+  position: absolute;
+  fill: #eee;
+  animation: cloud-move 6s infinite;
+}
+
+.cloud-dark {
+  position: absolute;
+  fill: #ccc;
+  animation: cloud-move 6s 1s infinite;
+}
+
+#cloud-1 {
+  left: 30px;
+  top: 15px;
+  width: 40px;
+}
+
+#cloud-2 {
+  left: 44px;
+  top: 10px;
+  width: 20px;
+}
+
+#cloud-3 {
+  left: 18px;
+  top: 24px;
+  width: 30px;
+}
+
+#cloud-4 {
+  left: 36px;
+  top: 18px;
+  width: 40px;
+}
+
+#cloud-5 {
+  left: 48px;
+  top: 14px;
+  width: 20px;
+}
+
+#cloud-6 {
+  left: 22px;
+  top: 26px;
+  width: 30px;
+}
+
+@keyframes cloud-move {
+  0% {
+    transform: translateX(0px);
+  }
+
+  40% {
+    transform: translateX(4px);
+  }
+
+  80% {
+    transform: translateX(-4px);
+  }
+
+  100% {
+    transform: translateX(0px);
+  }
+}
+
+.stars {
+  transform: translateY(-32px);
+  opacity: 0;
+  transition: 0.4s;
+}
+
+.star {
+  fill: white;
+  position: absolute;
+  transition: 0.4s;
+  animation: star-twinkle 2s infinite;
+}
+
+#theme-input:checked+.slider .stars {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+#star-1 {
+  width: 20px;
+  top: 2px;
+  left: 3px;
+  animation-delay: 0.3s;
+}
+
+#star-2 {
+  width: 6px;
+  top: 16px;
+  left: 3px;
+}
+
+#star-3 {
+  width: 12px;
+  top: 20px;
+  left: 10px;
+  animation-delay: 0.6s;
+}
+
+#star-4 {
+  width: 18px;
+  top: 0px;
+  left: 18px;
+  animation-delay: 1.3s;
+}
+
+@keyframes star-twinkle {
+  0% {
+    transform: scale(1);
+  }
+
+  40% {
+    transform: scale(1.2);
+  }
+
+  80% {
+    transform: scale(0.8);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes rotate-center {
+  0% {
+    transform: translateX(26px) rotate(0deg);
+  }
+
+  100% {
+    transform: translateX(26px) rotate(360deg);
+  }
+}
