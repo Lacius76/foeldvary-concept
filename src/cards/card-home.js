@@ -1,3 +1,5 @@
+import blueprintUrl from '../assets/bot-buleprint.jpg';
+
 export function getHomeCard() {
   return `
     <!-- Left Content Area -->
@@ -19,13 +21,9 @@ export function getHomeCard() {
 
     <!-- Right Content Area -->
     <div class="holo-sidebar">
-      <div class="holo-box holo-box-small">
-        <div class="holo-image placeholder-tower"></div>
-        <div class="holo-img-label">Central Tower Resonance</div>
-      </div>
-      <div class="holo-box holo-box-small">
-        <div class="holo-image placeholder-network"></div>
-        <div class="holo-img-label">Grid Dynamic Flow</div>
+      <div class="holo-box holo-box-full">
+        <div class="holo-image" style="background-image: url('${blueprintUrl}'); background-position: center; background-size: cover; border-color: var(--color-cyan);"></div>
+        <div class="holo-img-label">AI Bot-1000 Blueprint</div>
       </div>
     </div>
   `;

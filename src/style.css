@@ -184,6 +184,12 @@ body {
   z-index: 4;
   /* Initial state — off screen left (overridden by JS immediately) */
   will-change: transform, opacity;
+  cursor: pointer;
+}
+
+.bot-wrap:hover #bot-img {
+  filter: drop-shadow(0 0 35px rgba(0, 212, 255, 0.8));
+  transition: filter 0.3s ease;
 }
 
 #bot-img {

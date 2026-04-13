@@ -490,11 +490,16 @@ function initHologramTabs() {
   // Use event delegation on the document body to guarantee we capture the clicks
   document.body.addEventListener('click', (e) => {
     const tab = e.target.closest('.holo-tab');
-    if (!tab) return;
+    const bot = e.target.closest('#bot-wrap');
+    
+    // Proceed if either a tab or the bot was clicked
+    if (!tab && !bot) return;
     
     e.preventDefault();
-    const targetCard = tab.getAttribute('data-card');
-    console.log("Tab clicked via delegation:", targetCard);
+    
+    // Target defaults to 'home' if bot was clicked instead of a tab
+    const targetCard = tab ? tab.getAttribute('data-card') : 'home';
+    console.log("Navigation triggered:", targetCard);
 
     // Audio Effect
     try {
@@ -516,7 +521,9 @@ function initHologramTabs() {
     // Manage Active States
     const allTabs = document.querySelectorAll('.holo-tab');
     allTabs.forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
+    if (tab) {
+      tab.classList.add('active');
+    }
     
     const dynamicMain = document.getElementById('hologram-main-container');
     if (!dynamicMain) return;
@@ -534,6 +541,8 @@ function initHologramTabs() {
         dynamicMain.innerHTML = getResumeCard();
       } else if (targetCard === 'contact') {
         dynamicMain.innerHTML = getContactCard();
+      } else if (targetCard === 'home') {
+        dynamicMain.innerHTML = getHomeCard();
       } else {
         // Fallback Placeholder
         dynamicMain.innerHTML = `
