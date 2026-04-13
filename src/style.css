@@ -628,8 +628,25 @@ body {
   margin-top: var(--space-md);
   filter: drop-shadow(0 0 8px rgba(240, 160, 48, 0.5));
   overflow: hidden;
-  max-height: 800px;
-  /* Fallback max-height */
+  height: 460px; /* Rigidly fixed height to stop translation shifting */
+  max-height: 460px;
+  display: flex;
+  flex-direction: column;
+}
+
+#hologram-main-container {
+  flex: 1;
+  /* Inherit display: grid from .hologram-main class to preserve 2-column layout */
+  min-height: 0;
+  position: relative;
+  z-index: 10;
+}
+
+#hologram-main-container > .holo-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 /* =====================================================
@@ -656,7 +673,7 @@ body {
   }
 
   100% {
-    max-height: 1000px;
+    max-height: 460px;
     opacity: 1;
   }
 }
@@ -973,6 +990,130 @@ body {
   height: auto;
 }
 
+.holo-projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-md);
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding-right: var(--space-xs);
+  padding-bottom: var(--space-xl);
+  margin-top: var(--space-sm);
+}
+
+.holo-projects-grid::-webkit-scrollbar {
+  width: 4px;
+}
+
+.holo-projects-grid::-webkit-scrollbar-track {
+  background: rgba(0, 212, 255, 0.05);
+}
+
+.holo-projects-grid::-webkit-scrollbar-thumb {
+  background: var(--color-cyan);
+}
+
+/* =====================================================
+   3D TILT HOVER CARDS (PROJECTS)
+   ===================================================== */
+.holo-project-container {
+  perspective: 1000px;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 8px;
+  /* Extra 8px breathing space all around shrinks the internal card visually */
+}
+
+.holo-project-quadrant {
+  opacity: 0;
+  position: absolute;
+  z-index: 10;
+  width: 50%;
+  height: 50%;
+}
+
+.holo-project-card {
+  position: relative;
+  z-index: 0;
+  transition: all var(--duration-slow) var(--ease-smooth);
+  transform-origin: center center;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 2px;
+  /* Tight padding to maximize image area */
+  background: var(--color-bg);
+  /* Opaque background for 3D overlap hiding */
+}
+
+/* Ensure the image doesn't double-border with the card */
+.holo-project-card .holo-image {
+  border: none;
+  border-radius: 1px;
+}
+
+.holo-project-card .holo-img-label {
+  padding: 4px;
+  text-align: center;
+}
+
+/* Base Quadrant Positions */
+.holo-project-quadrant:nth-child(1) {
+  top: 0;
+  left: 0;
+}
+
+.holo-project-quadrant:nth-child(2) {
+  top: 0;
+  right: 0;
+}
+
+.holo-project-quadrant:nth-child(3) {
+  bottom: 0;
+  right: 0;
+}
+
+.holo-project-quadrant:nth-child(4) {
+  bottom: 0;
+  left: 0;
+}
+
+/* 3D Tilt Hover Effects based on cursor quadrant */
+.holo-project-quadrant:nth-child(1):hover~.holo-project-card,
+.holo-project-quadrant:nth-child(1):focus~.holo-project-card {
+  transform: rotateX(8deg) rotateY(-8deg) translateZ(0);
+  transform-origin: right bottom;
+  box-shadow: 8px 8px 20px rgba(0, 212, 255, 0.2);
+  border-color: var(--color-cyan);
+}
+
+.holo-project-quadrant:nth-child(2):hover~.holo-project-card,
+.holo-project-quadrant:nth-child(2):focus~.holo-project-card {
+  transform: rotateX(8deg) rotateY(8deg) translateZ(0);
+  transform-origin: left bottom;
+  box-shadow: -8px 8px 20px rgba(0, 212, 255, 0.2);
+  border-color: var(--color-cyan);
+}
+
+.holo-project-quadrant:nth-child(3):hover~.holo-project-card,
+.holo-project-quadrant:nth-child(3):focus~.holo-project-card {
+  transform: rotateX(-8deg) rotateY(8deg) translateZ(0);
+  transform-origin: left top;
+  box-shadow: -8px -8px 20px rgba(0, 212, 255, 0.2);
+  border-color: var(--color-cyan);
+}
+
+.holo-project-quadrant:nth-child(4):hover~.holo-project-card,
+.holo-project-quadrant:nth-child(4):focus~.holo-project-card {
+  transform: rotateX(-8deg) rotateY(-8deg) translateZ(0);
+  transform-origin: right top;
+  box-shadow: 8px -8px 20px rgba(0, 212, 255, 0.2);
+  border-color: var(--color-cyan);
+}
+
 .holo-image {
   width: 100%;
   height: 100px;
@@ -982,34 +1123,177 @@ body {
   overflow: hidden;
 }
 
-/* Placeholder gradients for mocked images */
-.placeholder-tower {
-  background: linear-gradient(45deg, rgba(0, 212, 255, 0.1), rgba(255, 0, 170, 0.1));
+/* =====================================================
+   RESUME LAYOUT
+   ===================================================== */
+.holo-resume-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: var(--space-xl);
+  align-items: flex-start;
+  margin-top: var(--space-md);
+  overflow-y: auto;
+  min-height: 0;
+  padding-right: var(--space-sm);
+  padding-bottom: var(--space-xl);
 }
 
-.placeholder-network {
-  background: linear-gradient(45deg, rgba(0, 0, 0, 0.5), rgba(0, 212, 255, 0.2));
+.holo-resume-grid::-webkit-scrollbar {
+  width: 4px;
+}
+
+.holo-resume-grid::-webkit-scrollbar-track {
+  background: rgba(0, 212, 255, 0.05);
+}
+
+.holo-resume-grid::-webkit-scrollbar-thumb {
+  background: var(--color-cyan);
+}
+
+.holo-subtitle {
+  font-family: var(--font-display);
+  color: var(--color-cyan);
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: var(--space-md);
+  border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+  padding-bottom: 4px;
+}
+
+/* Tags */
+.holo-tags-container {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
 }
 
-.placeholder-network::before {
-  content: "♦—♦—♦";
+.holo-tag {
+  background: rgba(0, 212, 255, 0.1);
   color: var(--color-cyan);
-  font-size: 1.5rem;
-  letter-spacing: 2px;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.placeholder-tower::after {
-  content: "▲";
+/* Lang Bars */
+.holo-lang-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.holo-lang-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.holo-lang-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.holo-lang-fill {
+  height: 100%;
+  background: var(--color-cyan);
+  box-shadow: 0 0 5px var(--color-cyan);
+}
+
+/* Timeline */
+.holo-timeline-path {
+  position: relative;
+  border-left: 1px solid rgba(0, 212, 255, 0.3);
+  margin-left: 6px;
+  padding-left: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.holo-timeline-item {
+  position: relative;
+}
+
+.holo-timeline-node {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: var(--color-cyan);
-  font-size: 2rem;
-  opacity: 0.5;
+  left: calc(var(--space-lg) * -1 - 6px);
+  /* Align perfectly over the border line */
+  top: 4px;
+  width: 11px;
+  height: 11px;
+  background: var(--color-bg);
+  border: 2px solid var(--color-cyan);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--color-cyan);
+}
+
+/* =====================================================
+   CONTACT LAYOUT
+   ===================================================== */
+.holo-cal-wrapper {
+  flex: 1;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  background: var(--color-bg);
+  overflow: hidden;
+  border-radius: 2px;
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  .holo-cal-wrapper {
+    min-height: 400px; /* Give the calendar enough height on mobile */
+  }
+}
+
+@media (max-width: 768px) {
+  .holo-contact-grid {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+  .holo-cal-wrapper {
+    min-height: 400px; /* Give the calendar enough height on mobile */
+  }
+}
+
+.holo-timeline-date {
+  font-size: 0.75rem;
+  color: var(--color-gold);
+  letter-spacing: 1px;
+  margin-bottom: 2px;
+}
+
+.holo-timeline-title {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  color: var(--color-text);
+  margin: 2px 0;
+}
+
+.holo-timeline-company {
+  font-size: 0.85rem;
+  color: var(--color-magenta);
+  margin-bottom: var(--space-sm);
+}
+
+.holo-timeline-desc {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .holo-resume-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .holo-img-label {

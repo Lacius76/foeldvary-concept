@@ -6,9 +6,9 @@ export function getAboutCard() {
     <div class="holo-box holo-box-large">
       <h2 class="holo-title">About Me</h2>
       <div class="holo-text-content">
-        <p>Balancing 25 years of design legacy with future AI.</p>
+        <p>Senior UX/UI Design Architect with 25 years of experience (e.g., Siemens).</p>
         <br>
-        <p>I am a Senior UI/UX Designer based in Vienna, specialized in creating high-stakes interfaces for industrial systems and AI-augmented product systems.</p>
+        <p>My focus: scalable design systems and AI-powered Design Ops (Google Anti-gravity & Stitch). I bridge the gap between HMI ergonomics and human-AI workflows to translate complex data into clear, high-performance user experiences.</p>
       </div>
       
       <div class="holo-actions">

@@ -2,6 +2,9 @@ import './style.css'
 import { Ribbons } from './ribbons.js'
 import { getHomeCard } from './cards/card-home.js'
 import { getAboutCard } from './cards/card-about.js'
+import { getProjectsCard } from './cards/card-projects.js'
+import { getResumeCard } from './cards/card-resume.js'
+import { getContactCard } from './cards/card-contact.js'
 
 /* -------------------------------------------------------
    Cinematic scroll — single sticky canvas, 300vh total height
@@ -525,6 +528,12 @@ function initHologramTabs() {
       // Swap Component Content
       if (targetCard === 'about') {
         dynamicMain.innerHTML = getAboutCard();
+      } else if (targetCard === 'projects') {
+        dynamicMain.innerHTML = getProjectsCard();
+      } else if (targetCard === 'resume') {
+        dynamicMain.innerHTML = getResumeCard();
+      } else if (targetCard === 'contact') {
+        dynamicMain.innerHTML = getContactCard();
       } else {
         // Fallback Placeholder
         dynamicMain.innerHTML = `
