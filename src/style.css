@@ -8,7 +8,7 @@
   --color-magenta: #ff00aa;
   --color-gold: #f0a030;
   --color-text: #e8f4ff;
-  --color-text-muted: rgba(180, 210, 240, 0.65);
+  --color-text-muted: rgba(220, 240, 255, 0.70);
   --color-border: rgba(0, 212, 255, 0.35);
 
   --font-display: 'Faculty Glyphic', serif;
@@ -190,8 +190,7 @@ body {
   width: 242px;
   height: auto;
   display: block;
-  /* Gentle float animation — separate from JS translateX on wrapper */
-  animation: float-bob 3.2s var(--ease-smooth) infinite;
+  /* Gentle float animation is now driven by JS requestAnimationFrame for laser tracking */
   /* Enhance the bot's built-in cyan glow */
   filter: drop-shadow(0 0 24px rgba(0, 212, 255, 0.45));
 }
@@ -330,13 +329,13 @@ body {
 
 /* =====================================================
    THEME TOGGLE — wrapper positioning
-   Fixed top-right, always above all scene layers
+   Fixed top-right, always completely independent
    ===================================================== */
 #theme-toggle-wrap {
-  position: absolute;
-  top: var(--space-lg);
-  right: var(--space-lg);
-  z-index: 10;
+  position: fixed;
+  top: var(--space-xl);
+  right: var(--space-xl);
+  z-index: 9999;
 }
 
 /* =====================================================
@@ -601,5 +600,553 @@ body {
 
   100% {
     transform: translateX(26px) rotate(360deg);
+  }
+}
+
+/* =====================================================
+   HOLOGRAM CONTAINER
+   ===================================================== */
+.hologram-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 92vw;
+  max-width: 900px;
+  z-index: 5;
+  opacity: 0;
+  will-change: opacity, transform;
+  pointer-events: none;
+}
+
+/* =====================================================
+   MAIN CARD WITH GOLD INDENTED OUTLINE
+   ===================================================== */
+.hologram-card {
+  position: relative;
+  /* Top and bottom notches applied to the entire card layout */
+  margin-top: var(--space-md);
+  filter: drop-shadow(0 0 8px rgba(240, 160, 48, 0.5));
+  overflow: hidden;
+  max-height: 800px;
+  /* Fallback max-height */
+}
+
+/* =====================================================
+   BOOT SEQUENCE ANIMATIONS
+   ===================================================== */
+.hologram-container.seq-boot {
+  pointer-events: auto;
+}
+
+.seq-boot .hologram-card {
+  animation: seq-boot-card 1.2s cubic-bezier(0.1, 0.8, 0.2, 1) both;
+  animation-delay: 1.0s;
+  transform-origin: top;
+}
+
+@keyframes seq-boot-card {
+  0% {
+    max-height: 0px;
+    opacity: 0;
+  }
+
+  1% {
+    opacity: 1;
+  }
+
+  100% {
+    max-height: 1000px;
+    opacity: 1;
+  }
+}
+
+.seq-boot .hologram-tabs {
+  animation: seq-boot-nav 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: 2.1s;
+}
+
+@keyframes seq-boot-nav {
+  0% {
+    transform: scale(0.5) translateY(-50px);
+    opacity: 0;
+  }
+
+  70% {
+    transform: scale(1.05) translateY(10px);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* The hollow border frame constructed via complex hollow clip-path */
+.hologram-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--color-gold);
+  pointer-events: none;
+  z-index: 10;
+  /* Complex polygon with a 0-width bridge at 50px rendering a perfect 1px outline */
+  clip-path: polygon(
+      /* Outer Edge (Clockwise) */
+      50px 0%,
+      calc(50% - 80px) 0%, calc(50% - 60px) 15px, calc(50% + 60px) 15px, calc(50% + 80px) 0%,
+      calc(100% - 20px) 0%, 100% 20px,
+      100% calc(100% - 20px), calc(100% - 20px) 100%,
+      calc(50% + 80px) 100%, calc(50% + 60px) calc(100% - 15px), calc(50% - 60px) calc(100% - 15px), calc(50% - 80px) 100%,
+      20px 100%, 0% calc(100% - 20px),
+      0% 20px, 20px 0%,
+      50px 0%,
+      /* Bridge to Inner Edge */
+      50px 1px,
+      /* Inner Edge (Counter-Clockwise, ~1px inset) */
+      21px 1px, 1px 21px,
+      1px calc(100% - 21px), 21px calc(100% - 1px),
+      calc(50% - 81px) calc(100% - 1px), calc(50% - 61px) calc(100% - 16px), calc(50% + 61px) calc(100% - 16px), calc(50% + 81px) calc(100% - 1px),
+      calc(100% - 21px) calc(100% - 1px), calc(100% - 1px) calc(100% - 21px),
+      calc(100% - 1px) 21px, calc(100% - 21px) 1px,
+      calc(50% + 81px) 1px, calc(50% + 61px) 16px, calc(50% - 61px) 16px, calc(50% - 81px) 1px,
+      50px 1px);
+}
+
+/* Semi-transparent background */
+.hologram-card-bg {
+  position: absolute;
+  inset: 0;
+  background: var(--panel-bg);
+  z-index: 0;
+  clip-path: polygon(0% 20px, 20px 0%,
+      calc(50% - 80px) 0%, calc(50% - 60px) 15px, calc(50% + 60px) 15px, calc(50% + 80px) 0%,
+      calc(100% - 20px) 0%, 100% 20px,
+      100% calc(100% - 20px), calc(100% - 20px) 100%,
+      calc(50% + 80px) 100%, calc(50% + 60px) calc(100% - 15px), calc(50% - 60px) calc(100% - 15px), calc(50% - 80px) 100%,
+      20px 100%, 0% calc(100% - 20px));
+}
+
+/* Exterior Notch Filler Accents - Cyberpunk connector style */
+.holo-notch-top,
+.holo-notch-bottom {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 160px;
+  height: 13px;
+  background: var(--color-gold);
+  z-index: 2;
+  filter: drop-shadow(0 0 5px rgba(240, 160, 48, 0.6));
+}
+
+.holo-notch-top {
+  top: 0;
+  clip-path: polygon(2.7px 0, calc(100% - 2.7px) 0, calc(100% - 20px) 100%, 20px 100%);
+}
+
+.holo-notch-bottom {
+  bottom: 0;
+  clip-path: polygon(20px 0, calc(100% - 20px) 0, calc(100% - 2.7px) 100%, 2.7px 100%);
+}
+
+
+/* Scanline effect */
+.hologram-card-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(to bottom,
+      transparent,
+      transparent 3px,
+      rgba(0, 212, 255, 0.06) 3px,
+      rgba(0, 212, 255, 0.06) 6px);
+  pointer-events: none;
+}
+
+/* Corner bracket accents (inside the card) */
+.hologram-card-bg::after {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  /* slightly inside */
+  border: 1px solid rgba(240, 160, 48, 0.2);
+  clip-path: polygon(0 0, var(--panel-corner) 0, 0 var(--panel-corner),
+      0 0,
+      calc(100% - var(--panel-corner)) 0, 100% 0, 100% var(--panel-corner),
+      calc(100% - var(--panel-corner)) 0,
+      100% calc(100% - var(--panel-corner)), 100% 100%, calc(100% - var(--panel-corner)) 100%,
+      100% calc(100% - var(--panel-corner)),
+      var(--panel-corner) 100%, 0 100%, 0 calc(100% - var(--panel-corner)),
+      var(--panel-corner) 100%);
+  pointer-events: none;
+}
+
+/* Hologram inner content wrapper */
+.hologram-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* Tabs */
+.hologram-tabs {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-sm);
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  padding: var(--space-xs) var(--space-xs);
+  border-radius: var(--panel-radius);
+  margin: 0 20px var(--space-md) 20px;
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.1);
+}
+
+.holo-tab {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  padding: var(--space-sm) var(--space-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  transition: all var(--duration-fast) var(--ease-smooth);
+  border-radius: 2px;
+}
+
+.holo-tab svg {
+  width: 16px;
+  height: 16px;
+}
+
+.holo-tab:hover {
+  color: var(--color-cyan);
+}
+
+.holo-tab.active {
+  color: var(--color-cyan);
+  border-bottom: 2px solid var(--color-cyan);
+  text-shadow: 0 0 8px rgba(0, 212, 255, 0.6);
+}
+
+/* Layout */
+.hologram-main {
+  position: relative;
+  z-index: 2;
+  padding: var(--space-xl);
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-md);
+}
+
+.holo-box {
+  border: 1px solid var(--color-cyan);
+  background: rgba(0, 212, 255, 0.05);
+  border-radius: var(--panel-radius);
+  padding: var(--space-md);
+  position: relative;
+}
+
+.holo-box::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  border-top: 2px solid var(--color-cyan);
+  border-left: 2px solid var(--color-cyan);
+}
+
+.holo-box::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  border-bottom: 2px solid var(--color-cyan);
+  border-right: 2px solid var(--color-cyan);
+}
+
+.holo-title {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  color: var(--color-text);
+  margin-bottom: var(--space-md);
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: var(--space-sm);
+}
+
+.holo-text-content {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-lg);
+  height: 200px;
+  overflow-y: auto;
+  padding-right: var(--space-sm);
+}
+
+/* Custom Scrollbar for holo text */
+.holo-text-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.holo-text-content::-webkit-scrollbar-track {
+  background: rgba(0, 212, 255, 0.1);
+}
+
+.holo-text-content::-webkit-scrollbar-thumb {
+  background: var(--color-cyan);
+  border-radius: 2px;
+}
+
+.holo-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(0, 212, 255, 0.2);
+  padding-top: var(--space-md);
+}
+
+.holo-btn-primary {
+  background: transparent;
+  color: var(--color-cyan);
+  border: 1px solid var(--color-cyan);
+  padding: var(--space-sm) var(--space-lg);
+  font-family: var(--font-ui);
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-smooth);
+}
+
+.holo-btn-primary:hover {
+  background: var(--color-cyan);
+  color: var(--color-bg);
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+}
+
+.holo-btn-secondary {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.holo-btn-secondary:hover {
+  color: var(--color-text);
+}
+
+/* Sidebar and images */
+.holo-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.holo-box-small {
+  padding: var(--space-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.holo-box-full {
+  padding: var(--space-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  flex: 1;
+}
+
+.holo-box-full .holo-image {
+  flex: 1;
+  height: auto;
+}
+
+.holo-image {
+  width: 100%;
+  height: 100px;
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Placeholder gradients for mocked images */
+.placeholder-tower {
+  background: linear-gradient(45deg, rgba(0, 212, 255, 0.1), rgba(255, 0, 170, 0.1));
+}
+
+.placeholder-network {
+  background: linear-gradient(45deg, rgba(0, 0, 0, 0.5), rgba(0, 212, 255, 0.2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholder-network::before {
+  content: "♦—♦—♦";
+  color: var(--color-cyan);
+  font-size: 1.5rem;
+  letter-spacing: 2px;
+}
+
+.placeholder-tower::after {
+  content: "▲";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--color-cyan);
+  font-size: 2rem;
+  opacity: 0.5;
+}
+
+.holo-img-label {
+  font-size: 0.7rem;
+  color: var(--color-cyan);
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* Floating Status Column */
+.holo-status-column {
+  position: absolute;
+  right: -140px;
+  /* Push outside the panel */
+  top: 20%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.holo-status-badge {
+  background: rgba(5, 18, 45, 0.6);
+  border: 1px solid var(--color-cyan);
+  padding: var(--space-xs) var(--space-sm);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  border-radius: 12px 2px 12px 2px;
+  white-space: nowrap;
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.1);
+}
+
+.text-green {
+  color: #00ffaa;
+  text-shadow: 0 0 5px rgba(0, 255, 170, 0.5);
+}
+
+.text-cyan {
+  color: var(--color-cyan);
+  text-shadow: 0 0 5px rgba(0, 212, 255, 0.5);
+}
+
+/* Hide floating column on strictly small screens */
+@media (max-width: 1200px) {
+  .holo-status-column {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .hologram-main {
+    grid-template-columns: 1fr;
+  }
+
+  .hologram-panel {
+    top: 50%;
+    transform: translate(-50%, -50%);
+    padding: var(--space-md);
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .holo-text-content {
+    height: auto;
+  }
+}
+
+/* =====================================================
+   Hologram Staggered Animations & Glitch
+   ===================================================== */
+.hologram-container.is-visible {
+  animation: panel-glitch-in 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes panel-glitch-in {
+  0% {
+    clip-path: inset(40% 0 60% 0);
+    filter: brightness(2) hue-rotate(90deg);
+  }
+
+  20% {
+    clip-path: inset(10% 0 80% 0);
+    filter: brightness(1.5);
+  }
+
+  40% {
+    clip-path: inset(80% 0 10% 0);
+    filter: brightness(2) hue-rotate(-90deg);
+  }
+
+  60% {
+    clip-path: inset(0 0 0 0);
+    filter: brightness(1.2);
+  }
+
+  100% {
+    clip-path: inset(0 0 0 0);
+    filter: brightness(1);
+  }
+}
+
+.holo-anim {
+  opacity: 0;
+  transform: translateY(10px);
+  filter: blur(4px);
+  transition: opacity 0.8s, transform 0.8s, filter 0.8s;
+  transition-timing-function: var(--ease-spring);
+}
+
+.hologram-container.seq-boot .holo-anim {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+.holo-anim.delay-1 {
+  transition-delay: 1.8s;
+}
+
+.holo-anim.delay-2 {
+  transition-delay: 2.1s;
+}
+
+.holo-anim.delay-3 {
+  transition-delay: 2.4s;
+}
+
+@media (max-width: 768px) {
+  .hologram-main {
+    grid-template-columns: 1fr;
+    padding: var(--space-md);
+  }
+
+  .hologram-container {
+    max-height: 80vh;
+  }
+
+  .holo-text-content {
+    height: auto;
   }
 }
