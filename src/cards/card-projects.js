@@ -18,7 +18,7 @@ export function getProjectsCard() {
   ];
 
   const gridItems = projects.map(p => `
-    <div class="holo-project-container">
+    <div class="holo-project-container" data-card="project-detail">
       <a class="holo-project-quadrant" href="#"></a>
       <a class="holo-project-quadrant" href="#"></a>
       <a class="holo-project-quadrant" href="#"></a>

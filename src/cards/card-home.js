@@ -14,8 +14,8 @@ export function getHomeCard() {
       </div>
       
       <div class="holo-actions">
-        <button class="holo-btn-primary">Continue...</button>
-        <span class="holo-btn-secondary">Next Page</span>
+        <button class="holo-btn-primary" data-card="tech">Continue...</button>
+        <span class="holo-btn-secondary">Technical Data</span>
       </div>
     </div>
 

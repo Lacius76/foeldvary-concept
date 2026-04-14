@@ -5,6 +5,8 @@ import { getAboutCard } from './cards/card-about.js'
 import { getProjectsCard } from './cards/card-projects.js'
 import { getResumeCard } from './cards/card-resume.js'
 import { getContactCard } from './cards/card-contact.js'
+import { getTechCard } from './cards/card-tech.js'
+import { getProjectDetailCard } from './cards/card-project-detail.js'
 
 /* -------------------------------------------------------
    Cinematic scroll — single sticky canvas, 300vh total height
@@ -122,10 +124,8 @@ document.querySelector('#app').innerHTML = `
         </div>
         <div class="intro-scroll-hint">
           <span>Scroll down to begin our journey.</span>
-          <div class="bounce-arrow" aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
+          <div class="mouse-btn" aria-hidden="true">
+            <span class="mouse-scroll"></span>
           </div>
         </div>
       </div>
@@ -489,7 +489,7 @@ function initHologramTabs() {
 
   // Use event delegation on the document body to guarantee we capture the clicks
   document.body.addEventListener('click', (e) => {
-    const tab = e.target.closest('.holo-tab');
+    const tab = e.target.closest('.holo-tab, [data-card]');
     const bot = e.target.closest('#bot-wrap');
     
     // Proceed if either a tab or the bot was clicked
@@ -521,8 +521,10 @@ function initHologramTabs() {
     // Manage Active States
     const allTabs = document.querySelectorAll('.holo-tab');
     allTabs.forEach(t => t.classList.remove('active'));
-    if (tab) {
-      tab.classList.add('active');
+    // Always highlight the corresponding top tab if it exists
+    const matchingTab = document.querySelector(`.holo-tab[data-card="${targetCard}"]`);
+    if (matchingTab) {
+      matchingTab.classList.add('active');
     }
     
     const dynamicMain = document.getElementById('hologram-main-container');
@@ -541,6 +543,10 @@ function initHologramTabs() {
         dynamicMain.innerHTML = getResumeCard();
       } else if (targetCard === 'contact') {
         dynamicMain.innerHTML = getContactCard();
+      } else if (targetCard === 'tech') {
+        dynamicMain.innerHTML = getTechCard();
+      } else if (targetCard === 'project-detail') {
+        dynamicMain.innerHTML = getProjectDetailCard();
       } else if (targetCard === 'home') {
         dynamicMain.innerHTML = getHomeCard();
       } else {
