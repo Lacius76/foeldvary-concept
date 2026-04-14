@@ -59,6 +59,14 @@ body {
   width: 100%;
 }
 
+/* Trap internal scroll boundaries so they don't chain to the cinematic body */
+.holo-projects-grid,
+.holo-text-content,
+.sub-content,
+#sub-message {
+  overscroll-behavior-y: contain;
+}
+
 /* =====================================================
    SCROLL WRAPPER — 550vh total
    Sticky canvas is 100vh, so max scrollY = 450vh.

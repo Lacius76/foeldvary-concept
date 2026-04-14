@@ -640,3 +640,31 @@ if (greetingEl) {
     falloff: 'gaussian'
   });
 }
+
+/* -------------------------------------------------------
+   Scroll-Lock for Hologram Card
+   ------------------------------------------------------- */
+// Prevent the cinematic body scroll from triggering when hovering over the card,
+// unless the cursor is explicitly inside a scrollable element.
+document.body.addEventListener('wheel', (e) => {
+  const card = e.target.closest('.hologram-card');
+  if (card) {
+    let target = e.target;
+    let isScrollable = false;
+    
+    // Check if the user is hovering over any vertically scrollable container within the card
+    while (target && target !== card) {
+       const style = window.getComputedStyle(target);
+       if ((style.overflowY === 'auto' || style.overflowY === 'scroll') && target.scrollHeight > target.clientHeight) {
+         isScrollable = true;
+         break;
+       }
+       target = target.parentElement;
+    }
+
+    // If not hovering over a scrollable part, block the mouse wheel from reaching the body (cinematic scroll)
+    if (!isScrollable) {
+       e.preventDefault();
+    }
+  }
+}, { passive: false });
