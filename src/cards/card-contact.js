@@ -41,15 +41,17 @@ export function getContactCard() {
 
       <!-- Bottom Area: Direct Message Form -->
       <div id="sub-message" class="holo-cal-wrapper sub-content" style="flex: 1; border: 1px solid rgba(0, 212, 255, 0.3); background: rgba(5, 12, 26, 0.5); overflow-y: auto; overflow-x: hidden; border-radius: 2px; position: relative; min-height: 250px; display: none; padding: var(--space-lg);">
-        <form onsubmit="event.preventDefault(); alert('Transmission successful. Awaiting server response.'); this.reset();" style="display: flex; flex-direction: column; gap: var(--space-md); min-height: 100%;">
+        <form onsubmit="event.preventDefault(); const f = this; const btn = f.querySelector('button'); const pt = btn.innerText; btn.innerText = 'Transmitting...'; fetch('https://api.web3forms.com/submit', { method: 'POST', body: new FormData(f) }).then(r => { if(r.ok){ alert('Transmission successful. Your message has been sent.'); f.reset(); } else { alert('Transmission failed.'); } }).finally(() => btn.innerText = pt);" style="display: flex; flex-direction: column; gap: var(--space-md); min-height: 100%;">
+          
+          <input type="hidden" name="access_key" value="6b879eef-0142-4ec2-8520-cde3c0a69809">
           
           <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: var(--space-xl); flex: 1;">
             
             <!-- Left Column: Inputs & Text -->
             <div style="display: flex; flex-direction: column; gap: var(--space-md);">
-              <input type="text" placeholder="Designation / Name" style="background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 2px; color: var(--color-text); padding: 12px; font-family: var(--font-ui); font-size: 0.9rem; outline: none;" required />
-              <input type="email" placeholder="Return Address (Email)" style="background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 2px; color: var(--color-text); padding: 12px; font-family: var(--font-ui); font-size: 0.9rem; outline: none;" required />
-              <input type="text" placeholder="Subject" style="background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 2px; color: var(--color-text); padding: 12px; font-family: var(--font-ui); font-size: 0.9rem; outline: none;" required />
+              <input type="text" name="name" placeholder="Designation / Name" style="background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 2px; color: var(--color-text); padding: 12px; font-family: var(--font-ui); font-size: 0.9rem; outline: none;" required />
+              <input type="email" name="email" placeholder="Return Address (Email)" style="background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 2px; color: var(--color-text); padding: 12px; font-family: var(--font-ui); font-size: 0.9rem; outline: none;" required />
+              <input type="text" name="subject" placeholder="Subject" style="background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 2px; color: var(--color-text); padding: 12px; font-family: var(--font-ui); font-size: 0.9rem; outline: none;" required />
               
               <div style="margin-top: auto; padding-top: var(--space-md); color: var(--color-text-muted); font-family: var(--font-ui); font-size: 0.85rem; line-height: 1.6; border-top: 1px solid rgba(0, 212, 255, 0.1);">
                 <p style="margin: 0; padding-bottom: 4px; color: var(--color-cyan); font-weight: 500;">Have a project in mind?</p>
@@ -59,7 +61,7 @@ export function getContactCard() {
 
             <!-- Right Column: Textarea & Submit -->
             <div style="display: flex; flex-direction: column; gap: var(--space-md);">
-              <textarea placeholder="Message payload..." style="flex: 1; background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 2px; color: var(--color-text); padding: 12px; font-family: var(--font-ui); font-size: 0.9rem; outline: none; min-height: 100px; resize: none;" required></textarea>
+              <textarea name="message" placeholder="Message payload..." style="flex: 1; background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 2px; color: var(--color-text); padding: 12px; font-family: var(--font-ui); font-size: 0.9rem; outline: none; min-height: 100px; resize: none;" required></textarea>
               <button type="submit" class="holo-btn-primary" style="align-self: flex-end; padding: 10px 24px;">Send Message</button>
             </div>
 
