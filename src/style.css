@@ -255,6 +255,7 @@ body {
   text-align: center;
   padding: 0 var(--space-xl);
   max-width: 800px;
+  transform: translateY(-80px);
 }
 
 .intro-greeting {
@@ -269,7 +270,7 @@ body {
 
 .intro-body {
   font-family: var(--font-ui);
-  font-size: clamp(1rem, 1.8vw, 1.25rem);
+  font-size: clamp(1.2rem, 2.2vw, 1.6rem);
   color: var(--color-text);
   line-height: 1.75;
   font-weight: 300;
@@ -1011,15 +1012,21 @@ body {
   margin-top: var(--space-sm);
 }
 
-.holo-projects-grid::-webkit-scrollbar {
+.holo-projects-grid::-webkit-scrollbar,
+#sub-message::-webkit-scrollbar,
+#sub-message textarea::-webkit-scrollbar {
   width: 4px;
 }
 
-.holo-projects-grid::-webkit-scrollbar-track {
+.holo-projects-grid::-webkit-scrollbar-track,
+#sub-message::-webkit-scrollbar-track,
+#sub-message textarea::-webkit-scrollbar-track {
   background: rgba(0, 212, 255, 0.05);
 }
 
-.holo-projects-grid::-webkit-scrollbar-thumb {
+.holo-projects-grid::-webkit-scrollbar-thumb,
+#sub-message::-webkit-scrollbar-thumb,
+#sub-message textarea::-webkit-scrollbar-thumb {
   background: var(--color-cyan);
 }
 

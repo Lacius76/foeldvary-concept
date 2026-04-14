@@ -7,6 +7,7 @@ import { getResumeCard } from './cards/card-resume.js'
 import { getContactCard } from './cards/card-contact.js'
 import { getTechCard } from './cards/card-tech.js'
 import { getProjectDetailCard } from './cards/card-project-detail.js'
+import { VariableProximity } from './variable-proximity.js'
 
 /* -------------------------------------------------------
    Cinematic scroll — single sticky canvas, 300vh total height
@@ -21,7 +22,7 @@ import { getProjectDetailCard } from './cards/card-project-detail.js'
 document.querySelector('#app').innerHTML = `
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Faculty+Glyphic&family=Exo+2:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Faculty+Glyphic:wght@100;200;300;400;500;600;700;800;900&family=Exo+2:wght@100..900&display=swap" rel="stylesheet">
 
   <div id="ribbons-container" style="position: fixed; inset: 0; z-index: 9999; pointer-events: none;"></div>
 
@@ -340,7 +341,7 @@ function initCinematicScroll() {
 
     if (hologramContainer && beamOverlay && holoBeam) {
       const holoOpacity = parseFloat(hologramContainer.style.opacity || '0')
-      
+
       const hasBootClass = hologramContainer.classList.contains('seq-boot')
       if (hasBootClass && !isBooting) {
         isBooting = true
@@ -349,7 +350,7 @@ function initCinematicScroll() {
         isBooting = false
         sequenceStartTime = 0
       }
-      
+
       const seqElapsed = isBooting ? (timestamp - sequenceStartTime) : 0
 
       if (holoOpacity <= 0.01 || !cardEl || !botImg) {
@@ -370,20 +371,20 @@ function initCinematicScroll() {
         const targetTopY = cardRect.top
         const targetBotX = cardRect.left
         const targetBotY = cardRect.bottom - 19
-        
+
         // Animate the beam shooting out fast over the first 500ms
         let currentTopX = targetTopX
         let currentTopY = targetTopY
         let currentBotX = targetBotX
         let currentBotY = targetBotY
-        
+
         if (isBooting && seqElapsed < 1000) {
           // Beam waits 500ms, then shoots out from 500ms -> 1000ms
           // This perfectly times the impact right before the card unfolds
           const localElapsed = Math.max(0, seqElapsed - 500)
           const p = Math.min(localElapsed / 500, 1)
           const eased = 1 - Math.pow(1 - p, 4) // Ease-out Quart curve
-          
+
           currentTopX = lerp(eyeX, targetTopX, eased)
           currentTopY = lerp(eyeY, targetTopY, eased)
           currentBotX = lerp(eyeX, targetBotX, eased)
@@ -475,13 +476,13 @@ initThemeToggle()
 function initHologramTabs() {
   console.log("=== HOLOGRAM SYSTEM INITIALIZED ===");
   const initialMain = document.getElementById('hologram-main-container');
-  
+
   if (initialMain) {
     initialMain.innerHTML = getHomeCard();
   } else {
     console.warn("hologram-main-container not found on load");
   }
-  
+
   const initialTabs = document.querySelectorAll('.holo-tab');
   if (initialTabs.length) {
     initialTabs.forEach(t => t.classList.remove('active'));
@@ -489,14 +490,42 @@ function initHologramTabs() {
 
   // Use event delegation on the document body to guarantee we capture the clicks
   document.body.addEventListener('click', (e) => {
+    // ------------------------------------
+    // Handle Contact Card Sub-tabs First
+    // ------------------------------------
+    const subTabBtn = e.target.closest('.subtab-btn');
+    if (subTabBtn) {
+      e.preventDefault();
+      const targetId = subTabBtn.getAttribute('data-target');
+      
+      // Reset all sub-tab buttons
+      document.querySelectorAll('.subtab-btn').forEach(btn => {
+        btn.style.background = 'transparent';
+        btn.style.borderColor = 'rgba(0, 212, 255, 0.3)';
+        btn.classList.remove('active-subtab');
+      });
+      
+      // Activate clicked tab
+      subTabBtn.style.background = 'rgba(0, 212, 255, 0.15)';
+      subTabBtn.style.borderColor = 'rgba(0, 212, 255, 0.8)';
+      subTabBtn.classList.add('active-subtab');
+      
+      // Hide all content areas and show target
+      document.querySelectorAll('.sub-content').forEach(content => content.style.display = 'none');
+      const targetEl = document.getElementById(targetId);
+      if (targetEl) targetEl.style.display = 'block';
+      
+      return; // Stop processing, do not trigger global page transition
+    }
+
     const tab = e.target.closest('.holo-tab, [data-card]');
     const bot = e.target.closest('#bot-wrap');
-    
+
     // Proceed if either a tab or the bot was clicked
     if (!tab && !bot) return;
-    
+
     e.preventDefault();
-    
+
     // Target defaults to 'home' if bot was clicked instead of a tab
     const targetCard = tab ? tab.getAttribute('data-card') : 'home';
     console.log("Navigation triggered:", targetCard);
@@ -516,7 +545,7 @@ function initHologramTabs() {
       gain.connect(audioCtx.destination);
       osc.start();
       osc.stop(audioCtx.currentTime + 0.08);
-    } catch (err) {}
+    } catch (err) { }
 
     // Manage Active States
     const allTabs = document.querySelectorAll('.holo-tab');
@@ -526,13 +555,13 @@ function initHologramTabs() {
     if (matchingTab) {
       matchingTab.classList.add('active');
     }
-    
+
     const dynamicMain = document.getElementById('hologram-main-container');
     if (!dynamicMain) return;
-    
+
     // Fade Out Transition
     dynamicMain.style.opacity = '0';
-    
+
     setTimeout(() => {
       // Swap Component Content
       if (targetCard === 'about') {
@@ -560,7 +589,7 @@ function initHologramTabs() {
           </div>
         `;
       }
-      
+
       // Fade In Transition
       dynamicMain.style.opacity = '1';
     }, 300);
@@ -581,4 +610,33 @@ if (ribbonsContainer) {
     enableFade: true,
     enableShaderEffect: false
   })
+}
+
+/* -------------------------------------------------------
+   Proximity Hover Effect on Intro Text
+   ------------------------------------------------------- */
+const proximityEl = document.querySelector('.intro-body');
+if (proximityEl) {
+  // Required so the mouse events can reach the absolute overlay text wrapper during phase 1
+  proximityEl.style.pointerEvents = 'auto';
+
+  new VariableProximity(proximityEl, {
+    fromSettings: "'wght' 300",
+    toSettings: "'wght' 900",
+    radius: 80, // smaller radius for tighter hover interaction
+    falloff: 'gaussian'
+  });
+}
+
+const greetingEl = document.querySelector('.intro-greeting');
+if (greetingEl) {
+  greetingEl.style.pointerEvents = 'auto';
+
+  new VariableProximity(greetingEl, {
+    // Reverse effect: starts thick, goes thin when mouse gets near
+    fromSettings: "'wght' 950",
+    toSettings: "'wght' 20",
+    radius: 70, // very tight radius to affect only ~3 letters
+    falloff: 'gaussian'
+  });
 }
